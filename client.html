@@ -1,0 +1,136 @@
+<!--
+  Copyright 2017 Michael Jacobsen.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!--
+    server (name, ip)
+    port
+    authkey
+
+    TLS
+    if TLS: CA.crt (a file)
+-->
+
+<script type="text/x-red" data-template-name="blynk-server">
+    <div class="form-row node-input-server">
+        <label for="node-config-input-server"><i class="fa fa-globe"></i> <span data-i18n="blynk.label.server"></span></label>
+        <input class="input-append-left" type="text" id="node-config-input-server" placeholder="e.g. localhost" style="width: 40%;" >
+
+        <label for="node-config-input-port" style="margin-left: 10px; width: 35px; "> <span data-i18n="blynk.label.port"></span></label>
+        <input type="text" id="node-config-input-port" data-i18n="[placeholder]mqtt.label.port" style="width:45px">
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-config-input-usetls" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-config-input-usetls" style="width: auto" data-i18n="blynk.label.use-tls"></label>
+        <div id="node-config-row-tls" class="hide">
+            <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-config-input-tls"><span data-i18n="blynk.label.tls-config"></span></label><input style="width: 300px;" type="text" id="node-config-input-tls">
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-authkey"><i class="fa fa-tag"></i> <span data-i18n="blynk.label.authkey"></span></label>
+        <input type="text" id="node-config-input-authkey" data-i18n="[placeholder]blynk.placeholder.authkey">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="blynk-server">
+    <p>A minimum MQTT broker connection requires only a broker server address to be added to the default configuration.</p>
+    <p>To secure the connection with SSL/TLS, a TLS Configuration must also be configured and selected.</p>
+    <p>If you create a Client ID it must be unique to the broker you are connecting to.</p>
+    <p>For more information about MQTT see the <a href="http://www.eclipse.org/paho/" target="_blank">Eclipse Paho</a> site.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('blynk-server',{
+        category: 'config',
+        defaults: {
+            server:           { value: "",          required:true },
+            port:             { value: 8441,        required: true, validate:RED.validators.number() },
+            tls:              { type: "tls-config", required: false },
+            usetls:           { value: false },
+            verifyservercert: { value: false },
+            authkey:          {value:"",            required:true }
+            /*clientid: {value:"", validate: function(v) {
+                    if ($("#node-config-input-clientid").length) {
+                        // Currently editing the node
+                        return $("#node-config-input-cleansession").is(":checked") || (v||"").length > 0;
+                    } else {
+                        return (this.cleansession===undefined || this.cleansession) || (v||"").length > 0;
+                    }
+                }},*/
+        },
+        label: function() {
+            return this.name||"blynk server"
+        },
+        oneditprepare: function () {
+            if (typeof this.usetls === 'undefined') {
+                this.usetls = false
+                $("#node-config-input-usetls").prop("checked",false)
+            }
+
+            function updateTLSOptions() {
+                if ($("#node-config-input-usetls").is(':checked')) {
+                    $("#node-config-row-tls").show()
+                } else {
+                    $("#node-config-row-tls").hide()
+                }
+            }
+
+            updateTLSOptions()
+
+            $("#node-config-input-usetls").on("click",function() {
+                updateTLSOptions()
+            })
+        },
+        oneditsave: function() {
+            if (!$("#node-config-input-usetls").is(':checked')) {
+                $("#node-config-input-tls").val("")
+            }
+        }
+    })
+</script>
+
+<script type="text/x-red" data-template-name="blynk value">
+    <div class="form-row">
+        <label for="node-input-client"><i class="fa fa-globe"></i> <span data-i18n="cayenne.label.cayenne-client"></span></label>
+        <input type="text" id="node-input-client">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="blynk value">
+    <p>Cayenne Sensor<p>
+    <p>For more information about Cayenne see the <a href="http://www.cayenne-mydevices.com/" target="_blank">Cayenne</a> site.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('blynk value',{
+        category: 'blynk-output',
+        defaults: {
+            client: {type:"blynk-server", required:true},
+            name:   {value:""}
+        },
+        color:"#4286f4",
+        inputs:1,
+        outputs:1,
+        icon: "bridge.png",
+        align: "right",
+        label: function() {
+            return this.name||"blynk value"
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":""
+        },
+        oneditprepare: function() {
+        },
+        oneditsave: function() {
+        }
+    });
+</script>

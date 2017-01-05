@@ -1,0 +1,14 @@
+{
+    "blynk": {
+        "label": {
+            "server": "Server",
+            "port": "8441",
+            "authkey": "Authkey returned by server",
+            "use-tls": "Enable secure (SSL/TLS) connection",
+            "tls-config": "TLS Configuration"
+        },
+        "placeholder": {
+            "authkey": "---"
+        }
+    },
+}
